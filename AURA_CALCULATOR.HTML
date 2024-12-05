@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aura Navigator</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+
+        :root {
+            --bg-primary: #0a192f;
+            --bg-secondary: #112240;
+            --text-primary: #e6f1ff;
+            --text-secondary: #8892b0;
+            --accent-primary: #64ffda;
+            --accent-secondary: #2563eb;
+            --border-color: #233554;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--bg-primary), var(--bg-secondary));
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            perspective: 1000px;
+            overflow-x: hidden;
+            padding: 1rem;
+        }
+
+        .container {
+            background: rgba(17, 34, 64, 0.8);
+            border-radius: 16px;
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 
+                0 25px 50px -12px rgba(0, 0, 0, 0.25),
+                0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            transform: rotateX(10deg);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: rotateX(10deg) translateY(0); }
+            50% { transform: rotateX(10deg) translateY(-15px); }
+        }
+
+        .title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+            letter-spacing: -1px;
+            animation: subtle-glow 3s infinite alternate;
+        }
+
+        @keyframes subtle-glow {
+            from { text-shadow: 0 0 10px rgba(100, 255, 218, 0.4); }
+            to { text-shadow: 0 0 20px rgba(37, 99, 235, 0.6); }
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 1rem 1rem 1rem 3.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(100, 255, 218, 0.2);
+        }
+
+        .input-group i {
+            position: absolute;
+            left: 1.25rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            transition: color 0.3s ease;
+        }
+
+        .input-group input:focus + i {
+            color: var(--accent-primary);
+        }
+
+        .calculate-btn {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+            border: none;
+            border-radius: 10px;
+            color: var(--bg-primary);
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .calculate-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(120deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: all 0.5s;
+            z-index: -1;
+        }
+
+        .calculate-btn:hover::before {
+            left: 100%;
+        }
+
+        .calculate-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 20px rgba(100, 255, 218, 0.2);
+        }
+
+        #result {
+            margin-top: 2rem;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+        }
+
+        #result.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @media screen and (max-width: 480px) {
+            .container {
+                padding: 1.5rem;
+                margin: 0;
+                width: 100%;
+                border-radius: 12px;
+            }
+
+            .title {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">Aura Navigator</h1>
+        <form id="auraCalculator" onsubmit="calculateAura(event)">
+            <div class="input-group">
+                <input type="text" id="name" placeholder="Your Name" required>
+                <i class="fas fa-user"></i>
+            </div>
+            <div class="input-group">
+                <input type="number" id="height" step="0.01" placeholder="Height (inches)" required min="12" max="120">
+                <i class="fas fa-ruler"></i>
+            </div>
+            <div class="input-group">
+                <input type="number" id="weight" step="0.01" placeholder="Weight (kg)" required min="10" max="300">
+                <i class="fas fa-weight"></i>
+            </div>
+            <div class="input-group">
+                <input type="number" id="cgpa" step="0.01" placeholder="CGPA" required min="0" max="10">
+                <i class="fas fa-graduation-cap"></i>
+            </div>
+            <button type="submit" class="calculate-btn">Reveal Your Aura</button>
+        </form>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        function calculateAura(event) {
+            event.preventDefault(); 
+            
+            const name = document.getElementById('name').value;
+            const heightInches = parseFloat(document.getElementById('height').value);
+            const weight = parseFloat(document.getElementById('weight').value);
+            const cgpa = parseFloat(document.getElementById('cgpa').value);
+
+            if (isNaN(heightInches) || isNaN(weight) || isNaN(cgpa)) {
+                document.getElementById('result').innerHTML = `
+                    <h2 class="result-title">Input Error</h2>
+                    <p>Please check your inputs and try again.</p>
+                `;
+                return;
+            }
+
+            const heightMeters = heightInches * 0.0254;
+            const bmi = weight / (heightMeters ** 2);
+            const goodBmi = 21.5;
+            const bmiDifference = Math.abs(bmi - goodBmi);
+            const normalizedBmi = 1 - (bmiDifference / goodBmi);
+            const goodCgpa = 9.43;
+            const normalizedCgpa = cgpa / goodCgpa;
+            const aura = ((3 * normalizedBmi) + (5 * normalizedCgpa)) / 8;
+            const auraPercentage = aura * 100;
+
+            const getAuraInterpretation = (percentage) => {
+                if (percentage >= 90) return "Peak Performer";
+                if (percentage >= 80) return "Emerging Leader";
+                if (percentage >= 70) return "Potential Achiever";
+                if (percentage >= 60) return "Work in Progress";
+                return "Growth Opportunity";
+            };
+
+            const interpretation = getAuraInterpretation(auraPercentage);
+
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = `
+                <h2 class="result-title">Your Aura Insights</h2>
+                <p><strong>Name:</strong> ${name}</p>
+                <p><strong>BMI:</strong> ${bmi.toFixed(2)}</p>
+                <p><strong>Aura Score:</strong> ${auraPercentage.toFixed(2)}%</p>
+                <p><strong>Potential:</strong> ${interpretation}</p>
+            `;
+            
+            // Trigger animation
+            resultDiv.classList.add('show');
+        }
+    </script>
+</body>
+</html>
